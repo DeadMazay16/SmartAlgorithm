@@ -37,6 +37,33 @@ public class Coordinate {
         return y;
     }
 
+    public boolean isOutSpace(){
+        return x < 0 || y < 0 || x > maxX || maxY > y;
+    }
+    public Coordinate getDirectionCoordinates(Direction direction){
+        Integer newX = this.x;
+        Integer newY = this.y;
+        switch (direction){
+            case UP:{
+                newY--;
+                break;
+            }
+            case RIGHT:{
+                newX++;
+                break;
+            }
+            case LEFT:{
+                newX--;
+                break;
+            }
+            case DOWN:{
+                newY++;
+                break;
+            }
+        }
+        return new Coordinate(newX, newY, this.maxX, this.maxY);
+    }
+
     public boolean move(Direction direction){
         switch (direction){
             case UP:{
@@ -47,7 +74,7 @@ public class Coordinate {
                 return false;
             }
             case RIGHT:{
-                if( x + 1 <= maxX){
+                if( x + 1 < maxX){
                     x++;
                     return true;
                 }
@@ -62,7 +89,7 @@ public class Coordinate {
 
             }
             case DOWN:{
-                if( y + 1 <= maxY){
+                if( y + 1 < maxY){
                     y++;
                     return true;
                 }
@@ -72,9 +99,13 @@ public class Coordinate {
         return false;
     }
 
+    public boolean isEqual(Integer x, Integer y){
+        return this.x == x && this.y == y;
+    }
+
     @Override
     public int hashCode() {
-        return 100 * x + y;
+        return 1000 * x + y + super.hashCode();
     }
 
     @Override

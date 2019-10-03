@@ -5,6 +5,7 @@ import ru.mikheev.kirill.field.Coordinate;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Random;
 
 public class Creature {
@@ -33,23 +34,27 @@ public class Creature {
             return instruction == CommandType.EXPLORE;
         }
 
-        CommandType getCommandType(){
+        public CommandType getCommandType(){
             return instruction;
         }
 
-        Direction getDirection(){
+        public Direction getDirection(){
             return direction;
         }
 
-        BlockType getDetectionType(){
+        public Coordinate getDetectionCoordinates(){
+            return coordinate.getDirectionCoordinates(direction);
+        }
+
+        public BlockType getDetectionType(){
             return detectionType;
         }
 
-        Command getIfTrue(){
+        public Command getIfTrue(){
             return ifTrue;
         }
 
-        Command getIfFalse(){
+        public Command getIfFalse(){
             return ifFalse;
         }
     }
@@ -60,7 +65,7 @@ public class Creature {
     private ArrayList<Command> commands;
     private Integer hunger;
     private Integer commandsNumber;
-
+    private Iterator<Command> iterator;
     private Coordinate coordinate;
 
     public Creature(Integer memorySize, Integer maxHunger, Coordinate coordinate){
@@ -103,7 +108,13 @@ public class Creature {
     }
 
     public Command getNextCommand(){
-        return null;
+        if(iterator == null){
+            iterator = commands.iterator();
+        }
+        if(!iterator.hasNext()){
+            iterator = commands.iterator();
+        }
+        return iterator.next();
     }
 
     public Integer getCommandsNumber(){

@@ -10,7 +10,9 @@ import java.util.Random;
 public enum BlockType {
     CREATURE,
     FOOD,
-    WALL;
+    WALL,
+    EMPTY,
+    OUT_SPACE;
 
     private static final List<BlockType> VALUES = Collections.unmodifiableList(Arrays.asList(values()));
     private static final int SIZE = VALUES.size();

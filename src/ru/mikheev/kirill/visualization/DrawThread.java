@@ -3,7 +3,6 @@ package ru.mikheev.kirill.visualization;
 import ru.mikheev.kirill.creatures.Creature;
 import ru.mikheev.kirill.field.Coordinate;
 import ru.mikheev.kirill.field.Field;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -42,21 +41,37 @@ public class DrawThread extends Thread {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            for (int i = 0; i < field.getMaxX(); i++) {
-                for (int j = 0; j < field.getMaxY(); j++) {
-                    if (!used.contains(new Coordinate(i, j, 0, 0))) {
-                        System.out.print('.');
-                    } else {
-                        System.out.print('#');
-                    }
-                }
-                System.out.println();
-            }
+            System.out.print(makeOutput());
             try {
-                TimeUnit.SECONDS.sleep(1);
+                TimeUnit.MILLISECONDS.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    private String makeOutput(){
+        String output = "";
+        for (int i = 0; i < field.getMaxX(); i++) {
+            for (int j = 0; j < field.getMaxY(); j++) {
+                if (!checkThisCoordinates(i, j)) {
+                    output +='.';
+                } else {
+                    output += '#';
+                }
+            }
+            output += '\n';
+        }
+        output += population.get(0).getCoordinate().getX() + " " +  population.get(0).getCoordinate().getY() + " " + checkThisCoordinates(population.get(0).getCoordinate().getX(), population.get(0).getCoordinate().getY());
+        return  output;
+    }
+
+    private boolean checkThisCoordinates(Integer x, Integer y){
+        for (Creature tmp : population) {
+            if(tmp.getCoordinate().isEqual(x, y)){
+                return true;
+            }
+        }
+        return false;
     }
 }
