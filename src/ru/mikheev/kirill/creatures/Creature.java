@@ -3,36 +3,54 @@ package ru.mikheev.kirill.creatures;
 import java.util.ArrayList;
 
 public class Creature {
-    
-    static final Integer memorySize = 64;
+
+    static final Integer MEMORY_SIZE = 32;
+    static final Integer MAX_HUNGER = 100;
 
     private class Command{
-        private Integer commandCode;
+        private CommandType instruction;
+        private Directions direction;
         private Command ifTrue;
         private Command ifFalse;
 
-        Command(Integer c){
-            this.commandCode = c;
+        Command(CommandType instruction, Directions direction){
+            this.instruction = instruction;
+            this.direction = direction;
         }
 
-        Command(Integer c, Command ift, Command iff){
-            this.commandCode = c;
+        Command(CommandType instruction, Directions direction, Command ift, Command iff){
+            this.instruction = instruction;
+            this.direction = direction;
             this.ifTrue = ift;
             this.ifFalse = iff;
         }
 
-        Integer getCommandCode(){
-            return commandCode;
+        CommandType getCommandCode(){
+            return instruction;
+        }
+
+        Directions getDirection(){
+            return direction;
         }
     }
 
-    ArrayList<Command> commands;
+    private ArrayList<Command> commands;
+    private Integer hunger;
+    private Integer commandsNumber;
 
-    Creature(){}
+    Creature(){
+        hunger = 50;
+        commands = new ArrayList<>();
+        commandsNumber = 0;
+    }
 
     public void mutate(int genCount){}
 
-    public void generateNewGen(int genCount){}
+    public void generateNewCommandList(int commandsCount){
+        while(commandsNumber < commandsCount){
+            break;
+        }
+    }
 
     public Integer getNextCommand(){return 0;}
 
