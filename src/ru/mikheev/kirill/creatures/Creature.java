@@ -1,6 +1,7 @@
 package ru.mikheev.kirill.creatures;
 
 import ru.mikheev.kirill.field.BlockType;
+import ru.mikheev.kirill.field.Coordinate;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -60,7 +61,10 @@ public class Creature {
     private Integer hunger;
     private Integer commandsNumber;
 
-    public Creature(Integer memorySize, Integer maxHunger){
+    private Coordinate coordinate;
+
+    public Creature(Integer memorySize, Integer maxHunger, Coordinate coordinate){
+        this.coordinate = coordinate;
         MAX_HUNGER = maxHunger;
         MEMORY_SIZE = memorySize;
         hunger = MAX_HUNGER / 2;
@@ -69,9 +73,53 @@ public class Creature {
     }
 
     private Creature(Creature oldVersion){
-        this(oldVersion.getMemorySize(), oldVersion.getMaxHunger());
+        this(oldVersion.getMemorySize(), oldVersion.getMaxHunger(), oldVersion.getCoordinate());
         this.setCommands(oldVersion.getCommands());
         this.setCommandsNumber(oldVersion.getCommandsNumber());
+    }
+
+    private void setCommands(ArrayList<Command> newVersion){
+        this.commands = (ArrayList<Command>) newVersion.clone();
+    }
+
+    private void setCommandsNumber(Integer commandsNumber){
+        this.commandsNumber = commandsNumber.intValue();
+    }
+
+    private void setCoordinate(Coordinate coordinate){
+        this.coordinate = coordinate;
+    }
+
+    public Integer getMemorySize() {
+        return MEMORY_SIZE;
+    }
+
+    public Integer getMaxHunger() {
+        return MAX_HUNGER;
+    }
+
+    private ArrayList<Command> getCommands(){
+        return commands;
+    }
+
+    public Command getNextCommand(){
+        return null;
+    }
+
+    public Integer getCommandsNumber(){
+        return commandsNumber;
+    }
+
+    public Integer getSingleCommandsNumber(){
+        return commands.size();
+    }
+
+    public Coordinate getCoordinate(){
+        return coordinate;
+    }
+
+    public boolean isAlive(){
+        return hunger > 0;
     }
 
     public boolean mutate(int genCount){
@@ -123,15 +171,13 @@ public class Creature {
         return tmp;
     }
 
-    public Command getNextCommand(){return null;}
-    public Integer getCommandsNumber(){return commandsNumber;}
-    public Integer getSingleCommandsNumber(){return commands.size();}
     public void feed(Integer foodCount){
         hunger += foodCount;
         if(hunger > MAX_HUNGER){
             hunger = MAX_HUNGER;
         }
     }
+
     public boolean starvation(){
         hunger -= 1;
         if(isAlive()){
@@ -139,23 +185,9 @@ public class Creature {
         }
         return false;
     }
-    public boolean isAlive(){
-        return hunger > 0;
-    }
-    private ArrayList<Command> getCommands(){
-        return commands;
-    }
-    private void setCommands(ArrayList<Command> newVersion){
-        this.commands = (ArrayList<Command>) newVersion.clone();
-    }
-    private void setCommandsNumber(Integer commandsNumber){
-        this.commandsNumber = commandsNumber.intValue();
-    }
-    public Integer getMemorySize() {
-        return MEMORY_SIZE;
-    }
-    public Integer getMaxHunger() {
-        return MAX_HUNGER;
+
+    public boolean move(Direction direction){
+        return coordinate.move(direction);
     }
 
     @Override

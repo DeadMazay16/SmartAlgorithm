@@ -9,4 +9,12 @@ public class Field {
         this.maxX = maxX;
         this.maxY = maxY;
     }
+
+    public Integer getMaxX() {
+        return maxX;
+    }
+
+    public Integer getMaxY() {
+        return maxY;
+    }
 }

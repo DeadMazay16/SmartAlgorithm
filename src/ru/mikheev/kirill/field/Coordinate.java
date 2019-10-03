@@ -71,4 +71,19 @@ public class Coordinate {
         }
         return false;
     }
+
+    @Override
+    public int hashCode() {
+        return 100 * x + y;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj.getClass() == this.getClass()) {
+            Coordinate coordinate = (Coordinate) obj;
+            return (coordinate.getX() == this.x && coordinate.getY() == this.y);
+        }else{
+            return false;
+        }
+    }
 }
