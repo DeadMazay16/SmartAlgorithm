@@ -1,6 +1,6 @@
 package ru.mikheev.kirill.field;
 
-import ru.mikheev.kirill.creatures.Directions;
+import ru.mikheev.kirill.creatures.Direction;
 
 public class Coordinate {
     private Integer x;
@@ -37,7 +37,7 @@ public class Coordinate {
         return y;
     }
 
-    public boolean move(Directions direction){
+    public boolean move(Direction direction){
         switch (direction){
             case UP:{
                 if( y - 1 >= 0){
