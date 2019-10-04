@@ -9,7 +9,8 @@ import java.util.Random;
 public enum CommandType {
     MOVE,
     GRAB,
-    EXPLORE;
+    EXPLORE,
+    WAIT;
 
     private static final List<CommandType> VALUES = Collections.unmodifiableList(Arrays.asList(values()));
     private static final int SIZE = VALUES.size();

@@ -2,13 +2,14 @@ package ru.mikheev.kirill.creatures;
 
 import ru.mikheev.kirill.field.BlockType;
 import ru.mikheev.kirill.field.Coordinate;
+import ru.mikheev.kirill.interfaces.Drawable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 
-public class Creature {
+public class Creature implements Drawable {
 
     public class Command{
         private CommandType instruction;
@@ -23,8 +24,7 @@ public class Creature {
         }
 
         Command(CommandType instruction, Direction direction, BlockType detectionType, Command ift, Command iff){
-            this.instruction = instruction;
-            this.direction = direction;
+            this(instruction, direction);
             this.detectionType = detectionType;
             this.ifTrue = ift;
             this.ifFalse = iff;
@@ -42,7 +42,7 @@ public class Creature {
             return direction;
         }
 
-        public Coordinate getDetectionCoordinates(){
+        public Coordinate getDirectionCoordinates(){
             return coordinate.getDirectionCoordinates(direction);
         }
 
@@ -67,6 +67,7 @@ public class Creature {
     private Integer commandsNumber;
     private Iterator<Command> iterator;
     private Coordinate coordinate;
+    private Integer score;
 
     public Creature(Integer memorySize, Integer maxHunger, Coordinate coordinate){
         this.coordinate = coordinate;
@@ -75,6 +76,7 @@ public class Creature {
         hunger = MAX_HUNGER / 2;
         commands = new ArrayList<>();
         commandsNumber = 0;
+        score = 0;
     }
 
     private Creature(Creature oldVersion){
@@ -125,6 +127,11 @@ public class Creature {
         return commands.size();
     }
 
+    @Override
+    public char getConsoleShape() {
+        return '#';
+    }
+
     public Coordinate getCoordinate(){
         return coordinate;
     }
@@ -158,6 +165,7 @@ public class Creature {
     }
 
     public void generateNewCommandList(int commandsCount){
+        commandsCount++;
         while(commandsNumber < commandsCount){
             Command tmp = generateNewCommand(commandsCount - commandsNumber >= 3);
             if(tmp.isExploreType()) {
@@ -169,7 +177,7 @@ public class Creature {
         }
     }
 
-    Command generateNewCommand(boolean ableToIf){
+    private Command generateNewCommand(boolean ableToIf){
         CommandType ct = CommandType.getRandomCommandType(ableToIf);
         Command tmp;
         if(ct.isExplore()) {
@@ -184,6 +192,7 @@ public class Creature {
 
     public void feed(Integer foodCount){
         hunger += foodCount;
+        score += 5;
         if(hunger > MAX_HUNGER){
             hunger = MAX_HUNGER;
         }
@@ -192,6 +201,7 @@ public class Creature {
     public boolean starvation(){
         hunger -= 1;
         if(isAlive()){
+            score += 1;
             return true;
         }
         return false;
@@ -199,6 +209,20 @@ public class Creature {
 
     public boolean move(Direction direction){
         return coordinate.move(direction);
+    }
+
+    public void setZeroScore(){
+        score = 0;
+    }
+
+    public void createCreatureByTemplate(){
+        ArrayList<Creature.Command> commands = new ArrayList<>();
+        commands.add(new Creature.Command(CommandType.EXPLORE, Direction.DOWN, BlockType.FOOD, new Command(CommandType.GRAB, Direction.DOWN), new Command(CommandType.WAIT, Direction.DOWN)));
+        commands.add(new Creature.Command(CommandType.EXPLORE, Direction.UP, BlockType.FOOD, new Command(CommandType.GRAB, Direction.UP), new Command(CommandType.WAIT, Direction.UP)));
+        commands.add(new Creature.Command(CommandType.EXPLORE, Direction.LEFT, BlockType.FOOD, new Command(CommandType.GRAB, Direction.LEFT), new Command(CommandType.WAIT, Direction.LEFT)));
+        commands.add(new Creature.Command(CommandType.EXPLORE, Direction.RIGHT, BlockType.FOOD, new Command(CommandType.GRAB, Direction.RIGHT), new Command(CommandType.WAIT, Direction.RIGHT)));
+        commands.add(new Creature.Command(CommandType.MOVE, Direction.RIGHT));
+        this.setCommands(commands);
     }
 
     @Override

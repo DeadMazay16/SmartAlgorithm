@@ -3,23 +3,27 @@ package ru.mikheev.kirill.visualization;
 import ru.mikheev.kirill.creatures.Creature;
 import ru.mikheev.kirill.field.Coordinate;
 import ru.mikheev.kirill.field.Field;
+import ru.mikheev.kirill.interfaces.Drawable;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 public class DrawThread extends Thread {
 
-    private ArrayList<Creature> population;
-    private HashSet<Coordinate> used;
+    private ArrayList<Drawable> objects;
     private Field field;
     private boolean isRunning;
+    private long lastUpdate;
+    private long timeStep;
 
-    public DrawThread(ArrayList<Creature> creatures, HashSet<Coordinate> used, Field field){
-        this.population = creatures;
-        this.used = used;
+    public DrawThread(ArrayList<Drawable> objects, Field field){
+        this.objects = objects;
         this.field = field;
         isRunning = false;
+        timeStep = 100;
     }
 
     public void stopPLS(){
@@ -33,45 +37,44 @@ public class DrawThread extends Thread {
 
     @Override
     public void run() {
+        lastUpdate = System.currentTimeMillis();
         while (isRunning) {
-            try {
-                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            System.out.print(makeOutput());
-            try {
-                TimeUnit.MILLISECONDS.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if(lastUpdate + timeStep <= System.currentTimeMillis()){
+                lastUpdate = System.currentTimeMillis();
+                String output = makeOutput();
+                try {
+                    new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                System.out.print(output);
             }
         }
     }
 
     private String makeOutput(){
         String output = "";
-        for (int i = 0; i < field.getMaxX(); i++) {
-            for (int j = 0; j < field.getMaxY(); j++) {
-                if (!checkThisCoordinates(i, j)) {
-                    output +='.';
-                } else {
-                    output += '#';
+        for (int i = -1; i < field.getMaxY() + 1; i++) {
+            for (int j = -1; j < field.getMaxX() + 1; j++) {
+                if (i < 0 || j < 0 || i >= field.getMaxY() || j >= field.getMaxX()) {
+                    output += (i < 0 ||  i >= field.getMaxY() ? '=' : '|');
+                } else{
+                    output += checkThisCoordinates(j, i);
                 }
             }
             output += '\n';
         }
-        output += population.get(0).getCoordinate().getX() + " " +  population.get(0).getCoordinate().getY() + " " + checkThisCoordinates(population.get(0).getCoordinate().getX(), population.get(0).getCoordinate().getY());
         return  output;
     }
 
-    private boolean checkThisCoordinates(Integer x, Integer y){
-        for (Creature tmp : population) {
+    private char checkThisCoordinates(Integer x, Integer y){
+        for (Drawable tmp : objects) {
             if(tmp.getCoordinate().isEqual(x, y)){
-                return true;
+                return tmp.getConsoleShape();
             }
         }
-        return false;
+        return '.';
     }
 }

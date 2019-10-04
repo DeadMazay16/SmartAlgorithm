@@ -38,8 +38,9 @@ public class Coordinate {
     }
 
     public boolean isOutSpace(){
-        return x < 0 || y < 0 || x > maxX || maxY > y;
+        return x < 0 || y < 0 || x > maxX || y > maxY;
     }
+
     public Coordinate getDirectionCoordinates(Direction direction){
         Integer newX = this.x;
         Integer newY = this.y;
@@ -68,7 +69,7 @@ public class Coordinate {
         switch (direction){
             case UP:{
                 if( y - 1 >= 0){
-                    y++;
+                    y--;
                     return true;
                 }
                 return false;
@@ -82,7 +83,7 @@ public class Coordinate {
             }
             case LEFT:{
                 if( x - 1 >= 0){
-                    x++;
+                    x--;
                     return true;
                 }
                 return false;
