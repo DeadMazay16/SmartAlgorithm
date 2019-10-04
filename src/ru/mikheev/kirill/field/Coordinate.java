@@ -16,17 +16,9 @@ public class Coordinate {
         this.maxY = maxY;
     }
 
-    public void reSetX(Integer x){
-        this.x = x;
-    }
-
-    public void reSetY(Integer y){
-        this.y = y;
-    }
-
     public void reSetCoordinate(Integer x, Integer y){
         this.x = x;
-        this.y = x;
+        this.y = y;
     }
 
     public Integer getX(){

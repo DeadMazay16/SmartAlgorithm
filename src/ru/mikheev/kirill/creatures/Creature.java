@@ -129,7 +129,7 @@ public class Creature implements Drawable {
 
     @Override
     public char getConsoleShape() {
-        return '#';
+        return '@';
     }
 
     public Coordinate getCoordinate(){

@@ -1,18 +1,16 @@
 package ru.mikheev.kirill.creatures;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
 public enum CommandType {
     MOVE,
     GRAB,
-    EXPLORE,
-    WAIT;
+    WAIT,
+    EXPLORE;
 
-    private static final List<CommandType> VALUES = Collections.unmodifiableList(Arrays.asList(values()));
+    private static final List<CommandType> VALUES = List.copyOf(Arrays.asList(values()));
     private static final int SIZE = VALUES.size();
 
     public boolean isExplore(){

@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SmartAlgorithm {
     public static void main(String[] args){
-        Engine engine = new Engine(10, 100, 50, 10, 32, 100, true);
+        Engine engine = new Engine(100, 100, 100, 33, 32, 100, false);
         engine.start();
         try {
             TimeUnit.SECONDS.sleep(2000);

@@ -1,6 +1,7 @@
 package ru.mikheev.kirill.visualization;
 
 import ru.mikheev.kirill.creatures.Creature;
+import ru.mikheev.kirill.engine.Engine;
 import ru.mikheev.kirill.field.Coordinate;
 import ru.mikheev.kirill.field.Field;
 import ru.mikheev.kirill.interfaces.Drawable;
@@ -18,8 +19,10 @@ public class DrawThread extends Thread {
     private boolean isRunning;
     private long lastUpdate;
     private long timeStep;
+    private Engine parent;
 
-    public DrawThread(ArrayList<Drawable> objects, Field field){
+    public DrawThread(ArrayList<Drawable> objects, Field field, Engine parent){
+        this.parent = parent;
         this.objects = objects;
         this.field = field;
         isRunning = false;
@@ -56,6 +59,7 @@ public class DrawThread extends Thread {
 
     private String makeOutput(){
         String output = "";
+        parent.deleteMissingObjects();
         for (int i = -1; i < field.getMaxY() + 1; i++) {
             for (int j = -1; j < field.getMaxX() + 1; j++) {
                 if (i < 0 || j < 0 || i >= field.getMaxY() || j >= field.getMaxX()) {
@@ -66,6 +70,7 @@ public class DrawThread extends Thread {
             }
             output += '\n';
         }
+        output += parent.getPopulationSize() + " creatures left";
         return  output;
     }
 
@@ -75,6 +80,6 @@ public class DrawThread extends Thread {
                 return tmp.getConsoleShape();
             }
         }
-        return '.';
+        return ' ';
     }
 }
