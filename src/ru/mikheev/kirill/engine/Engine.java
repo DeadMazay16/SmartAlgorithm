@@ -7,8 +7,8 @@ import ru.mikheev.kirill.field.Coordinate;
 import ru.mikheev.kirill.field.Field;
 import ru.mikheev.kirill.interfaces.Drawable;
 import ru.mikheev.kirill.visualization.DrawThread;
-import java.util.ArrayList;
-import java.util.Random;
+
+import java.util.*;
 
 public class Engine extends Thread{
 
@@ -22,11 +22,14 @@ public class Engine extends Thread{
     private ArrayList<Drawable> missingObjects;
     private ArrayList<Food> foodPool;
     private DrawThread drawThread;
+    private boolean drawThreadReady;
     private boolean isRunning;
     private boolean templated;
+    private boolean deleted;
     private long timeStep;
     private Field field;
     private Random rnd;
+    private Integer generationNumber;
 
     public Engine(Integer populationSize, Integer foodCount, Integer maxFieldX, Integer maxFieldY, Integer memorySize, Integer maxHunger, boolean templated){
         this.POPULATION_SIZE = populationSize;
@@ -34,19 +37,31 @@ public class Engine extends Thread{
         this.MAX_HUNGER = maxHunger;
         this.FOOD_COUNT = foodCount;
         this.templated = templated;
+        generationNumber = 0;
+        drawThreadReady = false;
+        deleted = false;
         rnd = new Random();
         field = new Field(maxFieldX, maxFieldY);
-        missingObjects = new ArrayList<>();
         isRunning = false;
         timeStep = 500;
         generateFirstGeneration();
-        drawThread = new DrawThread(toDraw, field, this);
+    }
+
+    private void newGenerationFirstSets(){
+        generationNumber++;
+        missingObjects = new ArrayList<>();
         generationResult = new ArrayList<>();
+        toDraw = new ArrayList<>();
+        toDraw.addAll(population);
+        toDraw.addAll(foodPool);
+        drawThread = new DrawThread(field, this);
+        drawThread.setObjects(toDraw);
+        drawThread.start();
     }
 
     @Override
     public synchronized void start() {
-        drawThread.start();
+        newGenerationFirstSets();
         isRunning = true;
         super.start();
     }
@@ -65,7 +80,21 @@ public class Engine extends Thread{
                         generationResult.add(tmp);
                     }
                 }
-
+                for(Drawable tmp : missingObjects){
+                    if(tmp instanceof Creature){
+                        population.remove(tmp);
+                    }
+                }
+                if(!(population.size() > 0)){
+                    drawThread.stopPLS();
+                    try {
+                        drawThread.join();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    generateNewGeneration();
+                    newGenerationFirstSets();
+                }
             }
         }
     }
@@ -88,6 +117,59 @@ public class Engine extends Thread{
     }
 
     private void generateNewGeneration(){
+        Collections.sort(generationResult, (Creature first, Creature second) ->
+                Integer.compare(first.getScore(), second.getScore())
+            );
+        Collections.reverse(generationResult);
+        ArrayList<Creature> newPopulation = new ArrayList<>();
+        ArrayList<Creature> badCreatures = new ArrayList<>();
+        for (int i = 0; i < POPULATION_SIZE / 2; i++){
+            newPopulation.add(generationResult.get(i));
+            badCreatures.add(generationResult.get(i + POPULATION_SIZE / 2));
+        }
+        ArrayList<Integer> numbersPool = new ArrayList<>();
+        ArrayList<Integer> toRemove = new ArrayList<>();
+        for (int i = 0; i < POPULATION_SIZE / 2; i++){
+            numbersPool.add(i);
+        }
+        for (int i = 0; i <  (POPULATION_SIZE / 2) / 5; i++){
+            Integer randomInt = rnd.nextInt(numbersPool.size());
+            toRemove.add(numbersPool.get(randomInt));
+            numbersPool.remove(randomInt.intValue());
+        }
+        for (int i = POPULATION_SIZE / 2 - 1; i >= 0; i--){
+            if(toRemove.contains(i)) {
+                newPopulation.remove(i);
+                newPopulation.add(i, badCreatures.get(i));
+            }
+        }
+        population.addAll(newPopulation);
+        for (Creature tmp : newPopulation){
+            tmp.setToStartState();
+            population.add(new Creature(tmp));
+        }
+        ArrayList<Coordinate> pool = new ArrayList<>();
+        for (int i = 0; i < field.getMaxX(); i++){
+            for(int j = 0; j < field.getMaxY(); j++){
+                pool.add(new Coordinate(i, j,field.getMaxX(),field.getMaxY()));
+            }
+        }
+        for(Creature tmp : population){
+            Integer randomInt = rnd.nextInt(pool.size());
+            tmp.setCoordinate(pool.get(randomInt));
+            pool.remove(randomInt.intValue());
+        }
+        foodPool = generateNewFoodPool(pool);
+        numbersPool.clear();
+        for(int i = 0; i < POPULATION_SIZE; i++){
+            numbersPool.add(i);
+        }
+        for (int i = 0; i < POPULATION_SIZE * 0.1; i++){
+            Integer randomInt = rnd.nextInt(numbersPool.size());
+            Creature tmp = population.get(numbersPool.get(randomInt));
+            tmp.mutate(1);
+        }
+
 
     }
 
@@ -201,16 +283,21 @@ public class Engine extends Thread{
     }
 
     public void deleteMissingObjects(){
-        for (Drawable tmp: missingObjects){
+        for (Drawable tmp: missingObjects) {
             toDraw.remove(tmp);
-            if(tmp instanceof Creature){
-                population.remove(tmp);
-            }
         }
         missingObjects.clear();
     }
 
     public Integer getPopulationSize(){
         return population.size();
+    }
+
+    public Integer getFoodNumber(){
+        return foodPool.size();
+    }
+
+    public Integer getGenerationNumber(){
+        return generationNumber;
     }
 }

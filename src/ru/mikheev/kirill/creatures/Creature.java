@@ -79,7 +79,7 @@ public class Creature implements Drawable {
         score = 0;
     }
 
-    private Creature(Creature oldVersion){
+    public Creature(Creature oldVersion){
         this(oldVersion.getMemorySize(), oldVersion.getMaxHunger(), oldVersion.getCoordinate());
         this.setCommands(oldVersion.getCommands());
         this.setCommandsNumber(oldVersion.getCommandsNumber());
@@ -93,8 +93,12 @@ public class Creature implements Drawable {
         this.commandsNumber = commandsNumber.intValue();
     }
 
-    private void setCoordinate(Coordinate coordinate){
+    public void setCoordinate(Coordinate coordinate){
         this.coordinate = coordinate;
+    }
+
+    public Integer getScore(){
+        return score;
     }
 
     public Integer getMemorySize() {
@@ -145,13 +149,18 @@ public class Creature implements Drawable {
             return false;
         }
         Random rnd = new Random();
-        HashSet<Integer> alreadyRework = new HashSet<>();
+        ArrayList<Integer> all = new ArrayList<>();
+        ArrayList<Integer> toRework = new ArrayList<>();
+        for (int i = 0; i < commands.size(); i++){
+            all.add(i);
+        }
         for (int i = 0; i < genCount; i++){
-            Integer tmp = rnd.nextInt(commands.size());
-            while (alreadyRework.contains(tmp)){
-                tmp = rnd.nextInt(commands.size());
-            }
-            alreadyRework.add(tmp);
+            Integer random = rnd.nextInt(all.size());
+            toRework.add(all.get(random));
+            all.remove(random.intValue());
+        }
+        for (int i = 0; i < toRework.size(); i++){
+            Integer tmp = toRework.get(i);
             Command newGen = generateNewCommand(((commandsNumber + 3 <= MEMORY_SIZE) || (commands.get(tmp).isExploreType())));
             if(newGen.isExploreType() && !commands.get(tmp).isExploreType()){
                 commandsNumber += 2;
@@ -211,10 +220,6 @@ public class Creature implements Drawable {
         return coordinate.move(direction);
     }
 
-    public void setZeroScore(){
-        score = 0;
-    }
-
     public void createCreatureByTemplate(){
         ArrayList<Creature.Command> commands = new ArrayList<>();
         commands.add(new Creature.Command(CommandType.EXPLORE, Direction.DOWN, BlockType.FOOD, new Command(CommandType.GRAB, Direction.DOWN), new Command(CommandType.WAIT, Direction.DOWN)));
@@ -223,6 +228,11 @@ public class Creature implements Drawable {
         commands.add(new Creature.Command(CommandType.EXPLORE, Direction.RIGHT, BlockType.FOOD, new Command(CommandType.GRAB, Direction.RIGHT), new Command(CommandType.WAIT, Direction.RIGHT)));
         commands.add(new Creature.Command(CommandType.MOVE, Direction.RIGHT));
         this.setCommands(commands);
+    }
+
+    public void setToStartState(){
+        hunger = MAX_HUNGER / 2;
+        score = 0;
     }
 
     @Override
