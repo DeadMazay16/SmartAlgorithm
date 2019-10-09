@@ -55,22 +55,26 @@ public class DrawThread extends Thread {
     }
 
     private String makeOutput(){
-        String output = "";
+        StringBuilder output = new StringBuilder("");
         parent.deleteMissingObjects();
-        output += "Generation number - " + parent.getGenerationNumber() + "\n";
+        output.append("Generation number - ");
+        output.append(parent.getGenerationNumber());
+        output.append("\n");
         for (int i = -1; i < field.getMaxY() + 1; i++) {
             for (int j = -1; j < field.getMaxX() + 1; j++) {
                 if (i < 0 || j < 0 || i >= field.getMaxY() || j >= field.getMaxX()) {
-                    output += (i < 0 ||  i >= field.getMaxY() ? '=' : '|');
+                    output.append(i < 0 ||  i >= field.getMaxY() ? '=' : '|');
                 } else{
-                    output += checkThisCoordinates(j, i);
+                    output.append(checkThisCoordinates(j, i));
                 }
             }
-            output += '\n';
+            output.append('\n');
         }
-        output += parent.getPopulationSize() + " creatures left\n";
-        output += parent.getFoodNumber() + " food left\n";
-        return  output;
+        output.append(parent.getPopulationSize());
+        output.append(" creatures left\n");
+        output.append(parent.getFoodNumber());
+        output.append(" food left\n");
+        return  output.toString();
     }
 
     private char checkThisCoordinates(Integer x, Integer y){
