@@ -55,6 +55,7 @@ public class DrawThread extends Thread {
     }
 
     private String makeOutput(){
+        //dsf
         String output = "";
         parent.deleteMissingObjects();
         output += "Generation number - " + parent.getGenerationNumber() + "\n";
